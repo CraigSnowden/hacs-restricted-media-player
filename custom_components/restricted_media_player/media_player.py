@@ -293,13 +293,12 @@ class RestrictedMediaPlayer(MediaPlayerEntity):
 
     @property
     def device_info(self):
-        """Return device info to link this entity to the base device."""
+        """Return device info for this virtual wrapper entity."""
         return {
             "identifiers": {(self._config_entry.domain, self._config_entry.entry_id)},
             "name": self._attr_name,
             "manufacturer": "Restricted Media Player",
             "model": "Restricted Wrapper",
-            "via_device": (self._base_entity_id,),
         }
 
     async def async_select_source(self, source: str) -> None:
