@@ -146,48 +146,82 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            # Update the config entry with new allowed sources
-            new_data = {**self.config_entry.data}
-            new_data[CONF_ALLOWED_SOURCES] = user_input[CONF_ALLOWED_SOURCES]
+            try:
+                # Update the config entry with new allowed sources
+                new_data = {**self.config_entry.data}
+                new_data[CONF_ALLOWED_SOURCES] = user_input[CONF_ALLOWED_SOURCES]
 
-            self.hass.config_entries.async_update_entry(
-                self.config_entry,
-                data=new_data,
+                self.hass.config_entries.async_update_entry(
+                    self.config_entry,
+                    data=new_data,
+                )
+
+                return self.async_create_entry(title="", data={})
+            except Exception as err:
+                _LOGGER.exception("Error updating config entry: %s", err)
+                errors["base"] = "unknown"
+
+        try:
+            # Get source list from base entity
+            base_entity_id = self.config_entry.data.get(CONF_BASE_ENTITY)
+
+            if not base_entity_id:
+                _LOGGER.error("No base entity configured")
+                return self.async_abort(reason="cannot_connect")
+
+            state = self.hass.states.get(base_entity_id)
+
+            if not state:
+                _LOGGER.error("Base entity %s not found", base_entity_id)
+                return self.async_abort(reason="cannot_connect")
+
+            source_list = state.attributes.get("source_list")
+
+            if not source_list or not isinstance(source_list, list):
+                _LOGGER.warning("Base entity %s has no valid sources: %s", base_entity_id, source_list)
+                return self.async_abort(reason="no_sources")
+
+            # Get current sources and filter to only those still available
+            current_sources = self.config_entry.data.get(CONF_ALLOWED_SOURCES, [])
+
+            # Ensure current_sources is a list
+            if not isinstance(current_sources, list):
+                _LOGGER.warning("Current sources is not a list: %s", current_sources)
+                current_sources = []
+
+            # Filter current sources to only include those still in source_list
+            # This prevents validation errors if sources have changed
+            valid_current_sources = [s for s in current_sources if s in source_list]
+
+            # If no valid sources remain, default to empty list
+            if not valid_current_sources and current_sources:
+                _LOGGER.warning(
+                    "None of the previously configured sources are available. "
+                    "Current sources: %s, Available sources: %s",
+                    current_sources,
+                    source_list
+                )
+
+            data_schema = vol.Schema(
+                {
+                    vol.Required(
+                        CONF_ALLOWED_SOURCES,
+                        default=valid_current_sources,
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=source_list,
+                            multiple=True,
+                            mode=selector.SelectSelectorMode.LIST,
+                        ),
+                    ),
+                }
             )
 
-            return self.async_create_entry(title="", data={})
-
-        # Get source list from base entity
-        base_entity_id = self.config_entry.data[CONF_BASE_ENTITY]
-        state = self.hass.states.get(base_entity_id)
-
-        if not state:
-            return self.async_abort(reason="cannot_connect")
-
-        source_list = state.attributes.get("source_list", [])
-
-        if not source_list:
-            return self.async_abort(reason="no_sources")
-
-        current_sources = self.config_entry.data.get(CONF_ALLOWED_SOURCES, [])
-
-        data_schema = vol.Schema(
-            {
-                vol.Required(
-                    CONF_ALLOWED_SOURCES,
-                    default=current_sources,
-                ): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=source_list,
-                        multiple=True,
-                        mode=selector.SelectSelectorMode.LIST,
-                    ),
-                ),
-            }
-        )
-
-        return self.async_show_form(
-            step_id="init",
-            data_schema=data_schema,
-            errors=errors,
-        )
+            return self.async_show_form(
+                step_id="init",
+                data_schema=data_schema,
+                errors=errors,
+            )
+        except Exception as err:
+            _LOGGER.exception("Unexpected error in options flow: %s", err)
+            return self.async_abort(reason="unknown")
