@@ -1,0 +1,7 @@
+{
+  "name": "Restricted Media Player",
+  "render_readme": true,
+  "domains": ["media_player"],
+  "iot_class": "Calculated",
+  "homeassistant": "2023.8.0"
+}

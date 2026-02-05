@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select Base Media Player",
+        "description": "Choose the media player to restrict",
+        "data": {
+          "base_entity": "Media Player"
+        }
+      },
+      "sources": {
+        "title": "Select Allowed Sources",
+        "description": "Choose which sources should be visible on the restricted media player",
+        "data": {
+          "name": "Name",
+          "allowed_sources": "Allowed Sources"
+        }
+      }
+    },
+    "error": {
+      "no_sources": "The selected media player has no sources available",
+      "cannot_connect": "Failed to connect to the media player",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This media player is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update Allowed Sources",
+        "description": "Choose which sources should be visible",
+        "data": {
+          "allowed_sources": "Allowed Sources"
+        }
+      }
+    }
+  }
+}

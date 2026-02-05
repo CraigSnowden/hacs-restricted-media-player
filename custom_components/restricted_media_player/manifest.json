@@ -1,0 +1,12 @@
+{
+  "domain": "restricted_media_player",
+  "name": "Restricted Media Player",
+  "codeowners": ["@craigcabrey"],
+  "config_flow": true,
+  "documentation": "https://github.com/craigcabrey/hacs-restricted-media-player",
+  "integration_type": "device",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/craigcabrey/hacs-restricted-media-player/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}
