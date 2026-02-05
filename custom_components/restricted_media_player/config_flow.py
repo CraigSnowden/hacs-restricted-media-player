@@ -8,10 +8,8 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.components.media_player import DOMAIN as MEDIA_PLAYER_DOMAIN
-from homeassistant.const import CONF_ENTITY_ID
 from homeassistant.core import callback
 from homeassistant.helpers import selector
-from homeassistant.helpers import entity_registry as er
 
 from .const import (
     CONF_ALLOWED_SOURCES,
@@ -48,10 +46,6 @@ class RestrictedMediaPlayerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._base_entity_name = state.attributes.get("friendly_name", self._base_entity_id)
             else:
                 self._base_entity_name = self._base_entity_id
-
-            # Check if already configured
-            await self.async_set_unique_id(self._base_entity_id)
-            self._abort_if_unique_id_configured()
 
             return await self.async_step_sources()
 

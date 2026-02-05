@@ -21,9 +21,6 @@
       "no_sources": "The selected media player has no sources available",
       "cannot_connect": "Failed to connect to the media player",
       "unknown": "Unexpected error"
-    },
-    "abort": {
-      "already_configured": "This media player is already configured"
     }
   },
   "options": {
