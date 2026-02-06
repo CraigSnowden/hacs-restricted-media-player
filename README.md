@@ -159,4 +159,4 @@ If you encounter any issues or have questions:
 
 ## Credits
 
-Created by Craig Cabrey
+Created by Craig Snowden
